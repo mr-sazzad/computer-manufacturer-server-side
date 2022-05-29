@@ -150,6 +150,26 @@ async function run() {
   
 
 
+      app.patch("/booking/:id", async (req, res) => {
+        const id = req.params.id;
+        const payment = req.body;
+        console.log(payment)
+        const filter = { _id: ObjectId(id) };
+        const updatedDoc = {
+          $set: {
+            paid: true,
+            transactionId: payment.transactionId,
+          },
+        };
+        const result = await paymentCollection.insertOne(payment);
+        const updatedBooking = await bookingCollection.updateOne(
+          filter,
+          updatedDoc
+        );
+        res.send(updatedDoc);
+      });
+
+
     });
 
   } finally {
