@@ -5,6 +5,7 @@ require("dotenv").config();
 const port = process.env.PORT || 5000;
 const app = express();
 const jwt = require("jsonwebtoken");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 app.use(cors());
 app.use(express.json());
@@ -168,7 +169,7 @@ async function run() {
       app.patch("/booking/:id", async (req, res) => {
         const id = req.params.id;
         const payment = req.body;
-        console.log(payment)
+        // console.log(payment)
         const filter = { _id: ObjectId(id) };
         const updatedDoc = {
           $set: {
