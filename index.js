@@ -38,17 +38,16 @@ async function run() {
     await client.connect();
     const productsCollection = client.db("partsCollection").collection("parts");
     const bookingCollection = client
-    .db("partsCollection")
-    .collection("booking");
-  const usersCollection = client.db("partsCollection").collection("users");
-  const paymentCollection = client
-    .db("partsCollection")
-    .collection("payments");
-  const reviewsCollection = client
-    .db("partsCollection")
-    .collection("reviews");
+      .db("partsCollection")
+      .collection("booking");
 
-
+    const usersCollection = client.db("partsCollection").collection("users");
+    const paymentCollection = client
+      .db("partsCollection")
+      .collection("payments");
+    const reviewsCollection = client
+      .db("partsCollection")
+      .collection("reviews");
 
     app.get("/allParts", async (req, res) => {
       const query = {};
@@ -57,41 +56,10 @@ async function run() {
       res.send(products);
     });
 
-
     app.post("/addPart", async (req, res) => {
       const item = req.body;
       const result = await productsCollection.insertOne(item);
       res.send(result);
-    });
-
-
-    app.get("/parts/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const result = await productsCollection.findOne(query);
-      res.send(result);
-    });
-
-
-    app.delete("/parts/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const result = await bookingCollection.deleteOne(query);
-      res.send(result);
-    });
-
-
-    app.get("/user", async (req, res) => {
-      const users = await usersCollection.find().toArray();
-      res.send(users);
-    });
-
-
-    app.get("/user/:email", async (req, res) => {
-      const email = req.params.email;
-      const query = { email: email };
-      const user = await usersCollection.findOne(query);
-      res.send(user);
     });
 
     app.put("/user/:email", async (req, res) => {
@@ -116,15 +84,12 @@ async function run() {
       res.send({ result, token });
     });
 
-
     app.get("/admin/:email", async (req, res) => {
       const email = req.params.email;
       const user = await usersCollection.findOne({ email: email });
       const isAdmin = user.role === "admin";
       res.send({ admin: isAdmin });
     });
-
-
 
     app.put("/user/admin/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
@@ -143,75 +108,95 @@ async function run() {
       } else {
         res.send(403).send({ message: "forbidden access bro" });
       }
-
-      app.post("/booking", async (req, res) => {
-        const booking = req.body;
-        const result = await bookingCollection.insertOne(booking);
-        res.send(result);
-      });
-
-      app.get("/booking", async (req, res) => {
-        const buyer = req.query.buyer;
-        const query = { buyerMail: buyer };
-        const bookings = await bookingCollection.find(query).toArray();
-        res.send(bookings);
-      });
-
-      app.get("/booking/:id", async (req, res) => {
-        const id = req.params.id;
-        const query = { _id: ObjectId(id) };
-        const booking = await bookingCollection.findOne(query);
-        res.send(booking);
-      });
-  
-
-
-      app.patch("/booking/:id", async (req, res) => {
-        const id = req.params.id;
-        const payment = req.body;
-        const filter = { _id: ObjectId(id) };
-        const updatedDoc = {
-          $set: {
-            paid: true,
-            transactionId: payment.transactionId,
-          },
-        };
-        const result = await paymentCollection.insertOne(payment);
-        const updatedBooking = await bookingCollection.updateOne(
-          filter,
-          updatedDoc
-        );
-        res.send(updatedDoc);
-      });
-
-
-      app.post("/review", async (req, res) => {
-        const review = req.body;
-        const result = await reviewsCollection.insertOne(review);
-        res.send(result);
-      });
-
-
-      app.get("/review", async (req, res) => {
-        const review = await reviewsCollection.find().toArray();
-        res.send(review);
-      });
-
-
-      app.post("/create-payment-intent", async (req, res) => {
-        const order = req.body;
-        const price = order.pPrice;
-        const amount = parseInt(price) * 100;
-        const paymentIntent = await stripe.paymentIntents.create({
-          amount: amount,
-          currency: "usd",
-          payment_method_types: ["card"],
-        });
-        res.send({ clientSecret: paymentIntent.client_secret });
-      });
-
     });
 
+    app.get("/parts/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await productsCollection.findOne(query);
+      res.send(result);
+    });
+
+    app.post("/booking", async (req, res) => {
+      const booking = req.body;
+      const result = await bookingCollection.insertOne(booking);
+      res.send(result);
+    });
+
+    app.get("/booking", async (req, res) => {
+      const buyer = req.query.buyer;
+      const query = { buyerMail: buyer };
+      const bookings = await bookingCollection.find(query).toArray();
+      res.send(bookings);
+    });
+
+    app.get("/booking/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const booking = await bookingCollection.findOne(query);
+      res.send(booking);
+    });
+
+    app.get("/user", async (req, res) => {
+      const users = await usersCollection.find().toArray();
+      res.send(users);
+    });
+
+    app.patch("/booking/:id", async (req, res) => {
+      const id = req.params.id;
+      const payment = req.body;
+      // console.log(payment)
+      const filter = { _id: ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          paid: true,
+          transactionId: payment.transactionId,
+        },
+      };
+      const result = await paymentCollection.insertOne(payment);
+      const updatedBooking = await bookingCollection.updateOne(
+        filter,
+        updatedDoc
+      );
+      res.send(updatedDoc);
+    });
+
+    app.get("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      res.send(user);
+    });
+
+    app.delete("/parts/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await bookingCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    app.post("/review", async (req, res) => {
+      const review = req.body;
+      const result = await reviewsCollection.insertOne(review);
+      res.send(result);
+    });
+
+    app.get("/review", async (req, res) => {
+      const review = await reviewsCollection.find().toArray();
+      res.send(review);
+    });
+
+    app.post("/create-payment-intent", async (req, res) => {
+      const order = req.body;
+      const price = order.pPrice;
+      const amount = parseInt(price) * 100;
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ["card"],
+      });
+      res.send({ clientSecret: paymentIntent.client_secret });
+    });
   } finally {
   }
 }
