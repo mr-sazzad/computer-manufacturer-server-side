@@ -134,6 +134,13 @@ async function run() {
         res.send(result);
       });
 
+      app.get("/booking", async (req, res) => {
+        const buyer = req.query.buyer;
+        const query = { buyerMail: buyer };
+        const bookings = await bookingCollection.find(query).toArray();
+        res.send(bookings);
+      });
+
 
     });
 
