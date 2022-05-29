@@ -72,6 +72,14 @@ async function run() {
     });
 
 
+    app.delete("/parts/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await bookingCollection.deleteOne(query);
+      res.send(result);
+    });
+
+
     app.get("/user", async (req, res) => {
       const users = await usersCollection.find().toArray();
       res.send(users);
