@@ -21,7 +21,16 @@ async function run() {
   try {
     await client.connect();
     const productsCollection = client.db("partsCollection").collection("parts");
-
+    const bookingCollection = client
+    .db("partsCollection")
+    .collection("booking");
+  const usersCollection = client.db("partsCollection").collection("users");
+  const paymentCollection = client
+    .db("partsCollection")
+    .collection("payments");
+  const reviewsCollection = client
+    .db("partsCollection")
+    .collection("reviews");
 
 
 
