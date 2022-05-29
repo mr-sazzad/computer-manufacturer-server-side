@@ -127,6 +127,14 @@ async function run() {
       } else {
         res.send(403).send({ message: "forbidden access bro" });
       }
+
+      app.post("/booking", async (req, res) => {
+        const booking = req.body;
+        const result = await bookingCollection.insertOne(booking);
+        res.send(result);
+      });
+
+
     });
 
   } finally {
